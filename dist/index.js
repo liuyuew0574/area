@@ -20,9 +20,12 @@ export default class area {
     this.povice = "";
     this.city = "";
     this.continentId = 1;
-    this.countryId = 7;
+    this.countryId = "中国";
     this.poviceId = "";
     this.cityId = "";
+    if (options != undefined && options.Area == false) {
+      this.newAreaLoc(false);
+    }
   }
   AreaLoc(isAsia)//需要洲为true
   {
@@ -71,15 +74,28 @@ export default class area {
 
   ///新版
   //获取地区
-  newAreaLoc(isAsia) {
+  async newAreaLoc(isAsia) {
     const that = this;
-    that.api.AreaLoc().then(function (res) {
+    await that.api.AreaLoc().then(function (res) {
       if (res.isCompleted) {
-        that.subAreaList = res.data;//res.data[0]亚洲  res.data[0].subAreaLoc 中国
         if (isAsia == false)//默认给亚洲
         {
-          that.newContinentChange()
-          that.newCountryChange()
+          res.data.map(function (item, index) {
+            if (item.areaId == 1) {
+              that.continentRegion = item.subAreaLoc
+              that.continentRegion.map(function (item, index) {
+                if (item.areaId == 7) {
+                  that.provinceRegion = item.subAreaLoc
+                  if (that.poviceId != "" && that.poviceId != 0) {
+                    that.newProvinceChange();
+                  }
+                }
+              })
+            }
+          })
+        }
+        else {
+          that.subAreaList = res.data;//res.data[0]亚洲  res.data[0].subAreaLoc 中国
         }
       } else {
         that.$message.error(res.message)
@@ -87,21 +103,23 @@ export default class area {
     })
   }
   //点击洲 求国家
-  newContinentChange() {
+
+  async newContinentChange() {
     const that = this;
-    that.subAreaList.map(function (item, index) {
+    await that.subAreaList.map(function (item, index) {
       if (item.areaId == that.continentId) {
         that.continentRegion = item.subAreaLoc
       }
     })
   }
   //点击国家 求省份
-  newCountryChange(areaId) {
+  async newCountryChange(areaId) {
     const that = this;
-    // that.countryId = areaId;
-
-    that.continentRegion.map(function (item, index) {
+    await that.continentRegion.map(function (item, index) {
       if (areaId == undefined) {
+        if (that.countryId == "中国") {
+          that.countryId = 7;
+        }
         if (item.areaId == that.countryId) {
           that.provinceRegion = item.subAreaLoc
         }
@@ -114,9 +132,9 @@ export default class area {
     })
   }
   //点击省份 求城市
-  newProvinceChange() {
+  async newProvinceChange() {
     const that = this;
-    that.provinceRegion.map(function (item, index) {
+    await that.provinceRegion.map(function (item, index) {
       if (item.areaId == that.poviceId) {
         that.cityRegion = item.subAreaLoc
       }
