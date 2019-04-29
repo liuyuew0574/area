@@ -10,19 +10,28 @@ export default class area {
   constructor(options) {
     this.api = api;  //调用的api
     this.options = options;  //配置项
-    this.subAreaList = [];
-    this.AsiaList = [];
-    this.continentRegion = [];
-    this.provinceRegion = [];
-    this.cityRegion = [];
-    this.continent = "";
-    this.country = "";
-    this.povice = "";
-    this.city = "";
-    this.continentId = 1;
-    this.countryId = "中国";
-    this.poviceId = "";
-    this.cityId = "";
+    this.subAreaList = [];// 接收洲的数组
+    this.AsiaList = [];//亚洲的所有国家
+    this.continentRegion = [];// 接收国家的数组
+    this.provinceRegion = [];//接收省份的数组
+    this.cityRegion = [];//接收城市的数组
+
+    this.continent = "";//前台v-model洲绑定的值 旧版
+    this.country = "";//前台v-model国家绑定的值 旧版
+    this.povice = "";//前台v-model省份绑定的值 旧版
+    this.city = "";//前台v-model城市绑定的值 旧版
+
+
+    //新版接收分割线 
+    this.continentId = 1; //洲 ID 默认亚洲 
+    this.countryId = "中国"; //国家id 默认中国 由于前台显示 总会出现数字 7 因此 直接定义中国
+    this.poviceId = "";// 省份id
+    this.cityId = ""; //城市id
+
+    this.continentRow = [];//获取到洲一行所有数据
+    this.countryRow = [];//获取到国家一行所有数据
+    this.poviceRow = [];//获取到省份一行所有数据
+    this.cityRow = [];//获取到城市一行所有数据
     if (options != undefined && options.Area == false) {
       this.newAreaLoc(false);
     }
@@ -108,6 +117,7 @@ export default class area {
     const that = this;
     await that.subAreaList.map(function (item, index) {
       if (item.areaId == that.continentId) {
+        that.continentRow = item;
         that.continentRegion = item.subAreaLoc
       }
     })
@@ -122,6 +132,7 @@ export default class area {
         }
         if (item.areaId == that.countryId) {
           that.provinceRegion = item.subAreaLoc
+          that.countryRow = item;
         }
       }
       else {
@@ -137,6 +148,17 @@ export default class area {
     await that.provinceRegion.map(function (item, index) {
       if (item.areaId == that.poviceId) {
         that.cityRegion = item.subAreaLoc
+        that.poviceRow = item;
+      }
+    })
+  }
+
+  //点击城市 求城市当前行
+  async newCityChange() {
+    const that = this;
+    await that.cityRegion.map(function (item, index) {
+      if (item.areaId == that.cityId) {
+        that.cityRow = item;
       }
     })
   }
